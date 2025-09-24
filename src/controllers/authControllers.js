@@ -1,5 +1,16 @@
+const jwt = require("jsonwebtoken");
+const jwttoken = require("../config/jwt");
 const sendResponse = require("../helpers/response");
-const { addRegister, loginUser } = require("../models/authModels");
+const {
+  addRegister,
+  loginUser,
+  relogin,
+  addEmployee,
+  logout,
+} = require("../models/authModels");
+const { poolPromise } = require("../config/db");
+const sql = require("mssql");
+const { hasRole } = require("../utils/hasRole");
 
 exports.addRegister = async (req, res, next) => {
   try {
@@ -50,9 +61,55 @@ exports.addRegister = async (req, res, next) => {
     }
 
     const data = await addRegister(req, res);
-    // sendResponse(res, 201, "Company and owner registered successfully", data);
   } catch (err) {
     sendResponse(res, 500, err.message, null);
+  }
+};
+
+exports.addEmployee = async (req, res, next) => {
+  try {
+    const {
+      parent_user_id,
+      parent_com_id,
+      parent_role_id,
+      role_id,
+      firstname,
+      lastname,
+      email,
+      password,
+    } = req.body;
+
+    const isOwnerAdmin = await hasRole(parent_role_id, ["Owner", "Admin"]);
+
+    console.log("isOwnerAdmin", isOwnerAdmin);
+
+    if (!isOwnerAdmin) {
+      return sendResponse(
+        res,
+        403,
+        "Only Owner or Admin can take this action",
+        []
+      );
+    }
+
+    console.log("req.body", req.body);
+
+    if (
+      !parent_user_id ||
+      !parent_com_id ||
+      !parent_role_id ||
+      !role_id ||
+      !firstname ||
+      !lastname ||
+      !email ||
+      !password
+    ) {
+      return sendResponse(res, 400, "Missing required fields", null);
+    }
+    addEmployee(req, res);
+  } catch (err) {
+    console.log("err", err);
+    sendResponse(res, 401, err.message, []);
   }
 };
 
@@ -86,5 +143,39 @@ exports.addlogin = async (req, res, next) => {
   } catch (err) {
     console.log("err", err);
     sendResponse(res, 401, err.message, []);
+  }
+};
+
+exports.reLogin = async (req, res) => {
+  try {
+    const accessHeader = req.headers["authorization"];
+    const refreshToken = req.headers["x-refresh-token"];
+
+    if (!accessHeader) {
+      return sendResponse(res, 401, "Access token missing", null);
+    }
+    if (!refreshToken) {
+      return sendResponse(res, 401, "Refresh token missing", null);
+    }
+    relogin(req, res);
+  } catch (error) {
+    return sendResponse(res, 500, "Server error", null);
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    const accessHeader = req.headers["authorization"];
+    const refreshToken = req.headers["x-refresh-token"];
+
+    if (!accessHeader) {
+      return sendResponse(res, 401, "Access token missing", null);
+    }
+    if (!refreshToken) {
+      return sendResponse(res, 401, "Refresh token missing", null);
+    }
+    logout(req, res);
+  } catch (error) {
+    return sendResponse(res, 500, "Server error", null);
   }
 };
