@@ -12,6 +12,6 @@ app.use(express.json());
 app.use("/master", masterRoutes);
 app.use("/auth", registerRoute);
 app.use("/company", companyRoute);
-app.use("/project", projectRoute);
+app.use("/taskify", projectRoute);
 
 module.exports = app;

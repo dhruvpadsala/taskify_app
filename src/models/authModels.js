@@ -380,6 +380,7 @@ async function relogin(req, res) {
       `);
 
     // Step 5: Return updated tokens
+    console.log("user==>", user);
     return sendResponse(res, 200, "Re-login successful", {
       access_token: newAccessToken,
       refresh_token: newRefreshToken,

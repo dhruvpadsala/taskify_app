@@ -4,6 +4,7 @@ const {
   changeCompanyAllowReq,
   getDataCompanyEmp,
   changeEmployeeyAllowReq,
+  getProjectEmp,
 } = require("../models/companyModels");
 const { hasRole } = require("../utils/hasRole");
 
@@ -18,7 +19,14 @@ exports.allPendingCompanyReq = async (req, res, next) => {
 
 exports.allCompanyWiseEmployee = async (req, res, next) => {
   const { user_id, role_id } = req.body;
-  console.log("user_id", user_id, role_id);
+
+  console.log(" user_id, role_id", user_id, role_id);
+
+  // 1. Validate payload
+  if (!user_id || !role_id) {
+    return sendResponse(res, 400, "Missing required fields", []);
+  }
+
   const isOwnerAdmin = await hasRole(role_id, ["Owner", "Admin"]);
   console.log("isOwnerAdmin", isOwnerAdmin);
 
@@ -90,4 +98,17 @@ exports.changeEmployeeAllowRequest = async (req, res, next) => {
     console.error("Controller error:", error);
     return sendResponse(res, 500, "Internal Server Error", []);
   }
+};
+
+exports.allprojectEmp = async (req, res, next) => {
+  try {
+    const { com_id, search } = req.query;
+
+    console.log("allprojectEmp", com_id, search);
+
+    if (!com_id) {
+      return sendResponse(res, 400, "Missing required fields", []);
+    }
+    await getProjectEmp(req, res);
+  } catch (error) {}
 };

@@ -132,7 +132,7 @@ exports.addlogin = async (req, res, next) => {
       access_token: data.accessToken,
       refresh_token: data.refreshToken,
       user: {
-        id: data.user.user_id,
+        user_id: data.user.user_id,
         email: data.user.email,
         first_name: data.user.first_name,
         last_name: data.user.last_name,

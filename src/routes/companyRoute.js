@@ -4,6 +4,7 @@ const {
   changeCompanyAllowRequest,
   allCompanyWiseEmployee,
   changeEmployeeAllowRequest,
+  allprojectEmp,
 } = require("../controllers/companyController");
 const validateAccessToken = require("../middlewares/validateAceesToken");
 const validateRefreshToken = require("../middlewares/validateRefreshToken");
@@ -36,5 +37,7 @@ router.post(
   validateRefreshToken,
   changeEmployeeAllowRequest
 );
+
+router.get("/all", validateAccessToken, validateRefreshToken, allprojectEmp);
 
 module.exports = router;

@@ -219,9 +219,36 @@ async function changeEmployeeyAllowReq(user_id, com_id, role_id, action, res) {
   }
 }
 
+async function getProjectEmp(req, res) {
+  try {
+    const { com_id, search } = req.query;
+    const pool = await poolPromise;
+
+    console.log("com_id", com_id);
+
+    const result = await pool
+      .request()
+      .input("com_id", sql.Int, com_id)
+      .input("search", sql.Char, search)
+      .execute("sp_list_project_emp");
+
+    // If your SP returns data (we added SELECT in last version)
+    console.log("result==>", result);
+    const data = result.recordset || [];
+
+    console.log("data", data);
+
+    return sendResponse(res, 200, "Feature list successfully", data);
+  } catch (error) {
+    console.error("Error in addProject:", err);
+    return sendResponse(res, 500, err.message || "Internal Server Error", null);
+  }
+}
+
 module.exports = {
   getCompanyData,
   changeCompanyAllowReq,
   getDataCompanyEmp,
   changeEmployeeyAllowReq,
+  getProjectEmp,
 };
